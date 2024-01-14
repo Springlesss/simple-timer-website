@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: rgb(5, 7, 57);
+            margin: 0;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        .input-field {
+            font-size: 4em;
+            width: 30%;
+            max-width: 120px;
+            margin: 0 20px;
+            text-align: center;
+            box-shadow: none;
+            border-radius: 25px;
+        }
+
+        #timer {
+            font-size: 8em;
+            margin-bottom: 40px;
+            outline: 3px;
+            outline-color: black;
+            color: white;
+            cursor: default;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        button {
+            font-size: 4em;
+            padding: 20px;
+            cursor: pointer;
+            margin: 0 40px;
+            border-radius: 35px;
+            box-shadow: none;
+        }
+
+        button:hover {
+            color: rgb(118, 118, 118);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="input-container">
+        <input type="number" class="input-field" id="hours" placeholder="H" max="23" min="0" onkeydown="return false;">
+        <input type="number" class="input-field" id="minutes" placeholder="M" max="59" min="0" onkeydown="return false;">
+        <input type="number" class="input-field" id="seconds" placeholder="S" max="59" min="0" onkeydown="return false;">
+    </div>
+
+    <div id="timer">00:00:00</div>
+
+    <div class="button-container">
+        <button onclick="startTimer()" id="startButton">Start</button>
+        <button onclick="resetTimer()">Reset</button>
+    </div>
+
+    
+    <audio id="timerSound" src="timerupsound.mp3" preload="auto"></audio>
+
+    <script>
+        let timerInterval;
+        let initialHours;
+        let initialMinutes;
+        let initialSeconds;
+        let remainingTime;
+
+        function startTimer() {
+            const startButton = document.getElementById('startButton');
+            if (startButton.textContent === 'Start' || startButton.textContent === 'Resume') {
+                stopTimer();
+                const hoursInput = document.getElementById('hours');
+                const minutesInput = document.getElementById('minutes');
+                const secondsInput = document.getElementById('seconds');
+
+                initialHours = parseInt(hoursInput.value) || 0;
+                initialMinutes = parseInt(minutesInput.value) || 0;
+                initialSeconds = parseInt(secondsInput.value) || 0;
+
+                remainingTime = (initialHours * 3600) + (initialMinutes * 60) + initialSeconds;
+
+                if (remainingTime > 0) {
+                    timerInterval = setInterval(updateTimer, 1000);
+                    startButton.textContent = 'Pause';
+                }
+            } else {
+                stopTimer();
+                startButton.textContent = 'Resume';
+            }
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            remainingTime = (initialHours * 3600) + (initialMinutes * 60) + initialSeconds;
+            updateDisplay();
+            document.getElementById('startButton').textContent = 'Start';
+        }
+
+        function updateTimer() {
+            if (remainingTime > 0) {
+                remainingTime--;
+                updateDisplay();
+            } else {
+                stopTimer();
+                playTimerSound();
+                setTimeout(resetTimer, 0); 
+            }
+        }
+
+        function updateDisplay() {
+            const hours = Math.floor(remainingTime / 3600);
+            const minutes = Math.floor((remainingTime % 3600) / 60);
+            const seconds = remainingTime % 60;
+
+            const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            document.getElementById('timer').textContent = formattedTime;
+        }
+
+        function playTimerSound() {
+            const timerSound = document.getElementById('timerSound');
+            timerSound.play();
+        }
+
+        function pad(value) {
+            return value < 10 ? '0' + value : value;
+        }
+    </script>
+
+</body>
+</html>
